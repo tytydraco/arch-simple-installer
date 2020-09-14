@@ -44,7 +44,7 @@ timedatectl set-ntp true
 	echo
 	echo
 	echo w		# Write
-) | fdisk "$DISKPATH"
+) | fdisk -w always "$DISKPATH"
 
 # Formatting partitions
 mkfs.fat -F 32 "$EFI"
