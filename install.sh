@@ -13,6 +13,11 @@ read DISKPATH
 DISKPATH=${DISKPATH:-/dev/sda}
 [[ ! -b "$DISKPATH" ]] && err "$DISKPATH does not exist. Exiting."
 
+echo -n "Filesystem [ext4]: "
+read FILESYSTEM
+FILESYSTEM=${FILESYSTEM:-ext4}
+[[ ! -b "$FILESYSTEM" ]] && err "$FILESYSTEM does not exist. Exiting."
+
 echo -n "Timezone [America/Los_Angeles]: "
 read TIMEZONE
 TIMEZONE=${TIMEZONE:-America/Los_Angeles}
@@ -55,7 +60,7 @@ timedatectl set-ntp true
 
 # Formatting partitions
 mkfs.fat -F 32 "$EFI"
-yes | mkfs.ext4 "$ROOT"
+yes | mkfs.$FILESYSTEM "$ROOT"
 
 # Mount our new partition
 mount "$ROOT" /mnt
