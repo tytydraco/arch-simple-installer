@@ -80,7 +80,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	echo "echo \"LANG=en_US.UTF-8\" > /etc/locale.conf"
 	echo "echo \"$HOSTNAME\" > /etc/hostname"
 	echo "echo -e \"127.0.0.1\tlocalhost\" >> /etc/hosts"
-	echo "echo -e \"::1\tlocalhost\" >> /etc/hosts"
+	echo "echo -e \"::1\t\tlocalhost\" >> /etc/hosts"
 	echo "echo -e \"127.0.1.1\t$HOSTNAME\" >> /etc/hosts"
 	echo "echo -e \"$PASSWORD\n$PASSWORD\" | passwd"
 	echo "pacman -Sy --noconfirm amd-ucode intel-ucode"
