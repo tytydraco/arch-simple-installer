@@ -28,12 +28,25 @@ read HOSTNAME
 HOSTNAME=${HOSTNAME:-localhost}
 
 echo -n "Password [root]: "
-read PASSWORD
+read -s PASSWORD
 PASSWORD=${PASSWORD:-root}
 
 # Setup script vars
 EFI="${DISKPATH}1"
 ROOT="${DISKPATH}2"
+
+echo "CONFIGURATION	VALUE"
+echo "Disk:		$DISPATH"
+echo "Root Filesystem:	$FILESYSTEM"
+echo "EFI Partition:	$EFI"
+echo "Root Partition:	$ROOT"
+echo "Timezone:		$TIMEZONE"
+echo "Hostname:		$HOSTNAME"
+echo "Password:		`echo \"$PASSWORD\" | sed 's/./*/g'`"
+echo ""
+echo -n "Proceed? [y/n]: "
+read PROCEED
+[[ "$PROCEED" != "y" ]] && err "User chose not to proceed. Exiting."
 
 # Unmount for safety
 umount "$EFI" 2> /dev/null
