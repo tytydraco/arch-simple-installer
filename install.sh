@@ -24,8 +24,8 @@ EFI="${DISKPATH}1"
 ROOT="${DISKPATH}2"
 
 # Unmount for safety
-umount "$EFI"
-umount "$ROOT"
+umount "$EFI" 2> /dev/null
+umount "$ROOT" 2> /dev/null
 
 # Timezone
 timedatectl set-ntp true
