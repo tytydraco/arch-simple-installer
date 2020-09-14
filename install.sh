@@ -70,7 +70,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	echo -e "echo \"127.0.0.1\tlocalhost\" >> /etc/hosts"
 	echo -e "echo \"::1\tlocalhost\" >> /etc/hosts"
 	echo -e "echo \"127.0.1.1\t$HOSTNAME\" >> /etc/hosts"
-	echo "echo \"$PASSWORD\" | passwd --stdin"
+	echo "echo -e \"$PASSWORD\n$PASSWORD\" | passwd"
 	echo "pacman -Sy --noconfirm amd-ucode intel-ucode"
 	echo "pacman -Sy --noconfirm grub efibootmgr"
 	echo "mkdir /boot/efi"
