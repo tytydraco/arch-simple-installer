@@ -88,22 +88,33 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Chroot commands
 (
+	# Time and date configuration
 	echo "ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime"
 	echo "hwclock --systohc"
+
+	# Setup locales
 	echo "sed -i \"s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/\" /etc/locale.gen"
 	echo "locale-gen"
 	echo "echo \"LANG=en_US.UTF-8\" > /etc/locale.conf"
+
+	# Setup hostname and hosts file
 	echo "echo \"$HOSTNAME\" > /etc/hostname"
 	echo "echo -e \"127.0.0.1\tlocalhost\" >> /etc/hosts"
 	echo "echo -e \"::1\t\tlocalhost\" >> /etc/hosts"
 	echo "echo -e \"127.0.1.1\t$HOSTNAME\" >> /etc/hosts"
 	echo "echo -e \"$PASSWORD\n$PASSWORD\" | passwd"
+
+	# Install microcode
 	echo "pacman -Sy --noconfirm amd-ucode intel-ucode"
+
+	# Install GRUBv2 as a removable drive (universal across hw)
 	echo "pacman -Sy --noconfirm grub efibootmgr"
 	echo "mkdir /boot/efi"
 	echo "mount \"$EFI\" /boot/efi"
 	echo "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable"
 	echo "grub-mkconfig -o /boot/grub/grub.cfg"
+
+	# Install and enable NetworkManager on boot
 	echo "pacman -Sy --noconfirm networkmanager iwd"
 	echo "systemctl enable NetworkManager"
 ) | arch-chroot /mnt
