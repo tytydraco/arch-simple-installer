@@ -16,7 +16,7 @@ DISKPATH=${DISKPATH:-/dev/sda}
 echo -n "Filesystem [ext4]: "
 read FILESYSTEM
 FILESYSTEM=${FILESYSTEM:-ext4}
-[[ ! -b "$FILESYSTEM" ]] && err "$FILESYSTEM does not exist. Exiting."
+! command -v mkfs.$FILESYSTEM &> /dev/null && err "Filesystem type $FILESYSTEM does not exist. Exiting."
 
 echo -n "Timezone [America/Los_Angeles]: "
 read TIMEZONE
