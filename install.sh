@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
 # Written by Draco (tytydraco @ GitHub)
 
+err() {
+	echo -e "\e[91m[!] $@\e[39m"
+	exit 1
+}
+
 # Configuration
 lsblk
 echo -n "Disk [/dev/sda]: "
 read DISKPATH
 DISKPATH=${DISKPATH:-/dev/sda}
+[[ ! -b "$DISKPATH" ]] && err "$DISKPATH does not exist. Exiting."
 
 echo -n "Timezone [America/Los_Angeles]: "
 read TIMEZONE
 TIMEZONE=${TIMEZONE:-America/Los_Angeles}
+[[ ! -f "/usr/share/zoneinfo/$TIMEZONE" ]] && err "/usr/share/zoneinfo/$TIMEZONE does not exist. Exiting."
 
 echo -n "Hostname [localhost]: "
 read HOSTNAME
@@ -80,3 +87,5 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	echo "pacman -Sy --noconfirm networkmanager iwd"
 	echo "systemctl enable NetworkManager"
 ) | arch-chroot /mnt
+
+echo "Install completed on $DISKPATH." 
