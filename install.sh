@@ -46,7 +46,7 @@ then
 	ROOT="${DISKPATH}2"
 else
 	EFI="N/A"
-	ROOT="${DISKPATH}1"
+	ROOT="${DISKPATH}2"
 fi
 
 echo ""
