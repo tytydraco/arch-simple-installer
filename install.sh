@@ -146,13 +146,13 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	# Install GRUBv2 as a removable drive (universal across hw)
 	if [[ "$BOOTLOADER" == "efi" ]]
 	then
-		echo "pacman -Sy --noconfirm grub"
+		echo "pacman -Sy --noconfirm grub efibootmgr"
 		echo "mkdir /boot/efi"
 		echo "mount \"$BOOT\" /boot/efi"
 		echo "grub-install --target=\"$GRUB_TARGET\" --efi-directory=/boot/efi --bootloader-id=GRUB --removable"
 		echo "grub-mkconfig -o /boot/grub/grub.cfg"
 	else
-		echo "pacman -Sy --noconfirm grub efibootmgr"
+		echo "pacman -Sy --noconfirm grub"
 		echo "grub-install --target=\"$GRUB_TARGET\" --removable \"$DISKPATH\""
 		echo "grub-mkconfig -o /boot/grub/grub.cfg"
 	fi
