@@ -16,6 +16,11 @@ read DISKPATH
 DISKPATH=${DISKPATH:-/dev/sda}
 [[ ! -b "$DISKPATH" ]] && err "$DISKPATH does not exist. Exiting."
 
+echo -n "Bootloader [efi/bios]: "
+read BOOTLOADER
+BOOTLOADER=${BOOTLOADER:-efi}
+[[ "$BOOTLOADER" != "efi" && "$BOOTLOADER" != "bios" ]] && err "$BOOTLOADER is an invalid bootloader mode. Exiting."
+
 echo -n "Filesystem [ext4]: "
 read FILESYSTEM
 FILESYSTEM=${FILESYSTEM:-ext4}
@@ -34,14 +39,21 @@ echo -n "Password [root]: "
 read -s PASSWORD
 PASSWORD=${PASSWORD:-root}
 
-# Setup script vars
-EFI="${DISKPATH}1"
-ROOT="${DISKPATH}2"
+# Setup partition variables
+if [[ "$BOOTLOADER" == "efi" ]]
+then
+	EFI="${DISKPATH}1"
+	ROOT="${DISKPATH}2"
+else
+	EFI="N/A"
+	ROOT="${DISKPATH}1"
+fi
 
 echo ""
 echo ""
 printf "%-16s\t%-16s\n" "CONFIGURATION" "VALUE"
 printf "%-16s\t%-16s\n" "Disk:" "$DISKPATH"
+printf "%-16s\t%-16s\n" "Bootloader:" "$BOOTLOADER"
 printf "%-16s\t%-16s\n" "Root Filesystem:" "$FILESYSTEM"
 printf "%-16s\t%-16s\n" "EFI Partition:" "$EFI"
 printf "%-16s\t%-16s\n" "Root Partition:" "$ROOT"
@@ -54,7 +66,7 @@ read PROCEED
 [[ "$PROCEED" != "y" ]] && err "User chose not to proceed. Exiting."
 
 # Unmount for safety
-umount "$EFI" 2> /dev/null || true
+[[ "$BOOTLOADER" == "efi" ]] && umount "$EFI" 2> /dev/null || true
 umount "$ROOT" 2> /dev/null || true
 
 # Timezone
@@ -63,12 +75,25 @@ timedatectl set-ntp true
 # Partitioning
 (
 	echo g		# Erase as GPT
-	echo n		# EFI
-	echo
-	echo
-	echo +512M
-	echo t
-	echo 1
+
+	# EFI or BIOS partitions
+	if [[ "$BOOTLOADER" == "efi" ]]
+	then
+		echo n		# EFI
+		echo
+		echo
+		echo +512M
+		echo t
+		echo 1
+	else
+		echo n		# BIOS
+		echo
+		echo
+		echo +1M
+		echo t
+		echo 4
+	fi
+
 	echo n		# Linux root
 	echo
 	echo
@@ -78,7 +103,7 @@ timedatectl set-ntp true
 ) | fdisk -w always "$DISKPATH"
 
 # Formatting partitions
-mkfs.fat -F 32 "$EFI"
+[[ "$BOOTLOADER" == "efi" ]] && mkfs.fat -F 32 "$EFI"
 yes | mkfs.$FILESYSTEM "$ROOT"
 
 # Mount our new partition
@@ -112,11 +137,18 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	echo "pacman -Sy --noconfirm amd-ucode intel-ucode"
 
 	# Install GRUBv2 as a removable drive (universal across hw)
-	echo "pacman -Sy --noconfirm grub efibootmgr"
-	echo "mkdir /boot/efi"
-	echo "mount \"$EFI\" /boot/efi"
-	echo "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable"
-	echo "grub-mkconfig -o /boot/grub/grub.cfg"
+	if [[ "$BOOTLOADER" == "efi" ]]
+	then
+		echo "pacman -Sy --noconfirm grub efibootmgr"
+		echo "grub-install --target=i386-pc --removable"
+		echo "grub-mkconfig -o /boot/grub/grub.cfg"
+	else
+		echo "pacman -Sy --noconfirm grub"
+		echo "mkdir /boot/efi"
+		echo "mount \"$EFI\" /boot/efi"
+		echo "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable"
+		echo "grub-mkconfig -o /boot/grub/grub.cfg"
+	fi
 
 	# Install and enable NetworkManager on boot
 	echo "pacman -Sy --noconfirm networkmanager iwd"
