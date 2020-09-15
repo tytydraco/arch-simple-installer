@@ -79,6 +79,8 @@ umount "$ROOT" 2> /dev/null || true
 # Timezone
 timedatectl set-ntp true
 
+# Wipe disk signatures first
+
 # Partitioning
 (
 	echo g		# Erase as GPT
@@ -107,7 +109,7 @@ timedatectl set-ntp true
 	echo
 	sleep 3		# Delay to avoid race condition
 	echo w		# Write
-) | fdisk -w always "$DISKPATH"
+) | fdisk -w always -W always "$DISKPATH"
 
 # Formatting partitions
 [[ "$BOOTLOADER" == "efi" ]] && mkfs.fat -F 32 "$BOOT"
