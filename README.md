@@ -4,10 +4,9 @@ An extremely basic Arch Linux installer, configuring Arch, GRUB, NetworkManager,
 # Features
 - Consistently reproducible
 - Supports UEFI and BIOS installs
-- Supports custom GRUBv2 targets
+- Installs GRUBv2 (customizable target architecture)
 - Follows the Arch Wiki verbatim
 - AMD and Intel microcode install
-- GRUBv2 install
 - NetworkManager + IWD install
 - Bare minimum universal installation
 
