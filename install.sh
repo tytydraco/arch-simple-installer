@@ -25,7 +25,7 @@ read BOOTLOADER
 
 echo -n "GRUBv2 Target [$_GRUB_TARGET]: "
 read GRUB_TARGET
-FILESYSTEM=${GRUB_TARGET:-"$_GRUB_TARGET"}
+GRUB_TARGET=${GRUB_TARGET:-"$_GRUB_TARGET"}
 
 echo -n "Filesystem [ext4]: "
 read FILESYSTEM
