@@ -46,14 +46,8 @@ read -s PASSWORD
 PASSWORD=${PASSWORD:-root}
 
 # Setup partition variables
-if [[ "$BOOTLOADER" == "efi" ]]
-then
-	BOOT="${DISKPATH}1"
-	ROOT="${DISKPATH}2"
-else
-	BOOT="N/A"
-	ROOT="${DISKPATH}2"
-fi
+BOOT="${DISKPATH}1"
+ROOT="${DISKPATH}2"
 
 echo ""
 echo ""
