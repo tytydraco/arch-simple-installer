@@ -42,10 +42,10 @@ PASSWORD=${PASSWORD:-root}
 # Setup partition variables
 if [[ "$BOOTLOADER" == "efi" ]]
 then
-	EFI="${DISKPATH}1"
+	BOOT="${DISKPATH}1"
 	ROOT="${DISKPATH}2"
 else
-	EFI="N/A"
+	BOOT="N/A"
 	ROOT="${DISKPATH}2"
 fi
 
@@ -55,7 +55,7 @@ printf "%-16s\t%-16s\n" "CONFIGURATION" "VALUE"
 printf "%-16s\t%-16s\n" "Disk:" "$DISKPATH"
 printf "%-16s\t%-16s\n" "Bootloader:" "$BOOTLOADER"
 printf "%-16s\t%-16s\n" "Root Filesystem:" "$FILESYSTEM"
-printf "%-16s\t%-16s\n" "EFI Partition:" "$EFI"
+printf "%-16s\t%-16s\n" "Boot Partition:" "$BOOT"
 printf "%-16s\t%-16s\n" "Root Partition:" "$ROOT"
 printf "%-16s\t%-16s\n" "Timezone:" "$TIMEZONE"
 printf "%-16s\t%-16s\n" "Hostname:" "$HOSTNAME"
@@ -66,7 +66,7 @@ read PROCEED
 [[ "$PROCEED" != "y" ]] && err "User chose not to proceed. Exiting."
 
 # Unmount for safety
-[[ "$BOOTLOADER" == "efi" ]] && umount "$EFI" 2> /dev/null || true
+[[ "$BOOTLOADER" == "efi" ]] && umount "$BOOT" 2> /dev/null || true
 umount "$ROOT" 2> /dev/null || true
 
 # Timezone
@@ -79,14 +79,14 @@ timedatectl set-ntp true
 	# EFI or BIOS partitions
 	if [[ "$BOOTLOADER" == "efi" ]]
 	then
-		echo n		# EFI
+		echo n
 		echo
 		echo
 		echo +512M
 		echo t
 		echo 1
 	else
-		echo n		# BIOS
+		echo n
 		echo
 		echo
 		echo +1M
@@ -103,7 +103,7 @@ timedatectl set-ntp true
 ) | fdisk -w always "$DISKPATH"
 
 # Formatting partitions
-[[ "$BOOTLOADER" == "efi" ]] && mkfs.fat -F 32 "$EFI"
+[[ "$BOOTLOADER" == "efi" ]] && mkfs.fat -F 32 "$BOOT"
 yes | mkfs.$FILESYSTEM "$ROOT"
 
 # Mount our new partition
@@ -139,14 +139,14 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	# Install GRUBv2 as a removable drive (universal across hw)
 	if [[ "$BOOTLOADER" == "efi" ]]
 	then
-		echo "pacman -Sy --noconfirm grub efibootmgr"
-		echo "grub-install --target=i386-pc --removable"
-		echo "grub-mkconfig -o /boot/grub/grub.cfg"
-	else
 		echo "pacman -Sy --noconfirm grub"
 		echo "mkdir /boot/efi"
-		echo "mount \"$EFI\" /boot/efi"
+		echo "mount \"$BOOT\" /boot/efi"
 		echo "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable"
+		echo "grub-mkconfig -o /boot/grub/grub.cfg"
+	else
+		echo "pacman -Sy --noconfirm grub efibootmgr"
+		echo "grub-install --target=i386-pc --removable"
 		echo "grub-mkconfig -o /boot/grub/grub.cfg"
 	fi
 
