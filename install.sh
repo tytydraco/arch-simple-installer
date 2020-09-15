@@ -145,7 +145,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 		echo "grub-mkconfig -o /boot/grub/grub.cfg"
 	else
 		echo "pacman -Sy --noconfirm grub efibootmgr"
-		echo "grub-install --target=i386-pc --removable"
+		echo "grub-install --target=i386-pc --removable \"$DISKPATH\""
 		echo "grub-mkconfig -o /boot/grub/grub.cfg"
 	fi
 
