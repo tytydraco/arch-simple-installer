@@ -14,17 +14,16 @@ lsblk
 echo -n "Disk [/dev/sda]: "
 read DISKPATH
 DISKPATH=${DISKPATH:-/dev/sda}
-[[ ! -b "$DISKPATH" ]] && err "$DISKPATH does not exist. Exiting."
+[[ ! -b "$DISKPATH" ]] && err "Disk does not exist. Exiting."
 
 echo -n "Bootloader [efi/bios]: "
 read BOOTLOADER
-BOOTLOADER=${BOOTLOADER:-efi}
-[[ "$BOOTLOADER" != "efi" && "$BOOTLOADER" != "bios" ]] && err "$BOOTLOADER is an invalid bootloader mode. Exiting."
+[[ "$BOOTLOADER" != "efi" && "$BOOTLOADER" != "bios" ]] && err "Invalid bootloader mode. Exiting."
 
 echo -n "Filesystem [ext4]: "
 read FILESYSTEM
 FILESYSTEM=${FILESYSTEM:-ext4}
-! command -v mkfs.$FILESYSTEM &> /dev/null && err "Filesystem type $FILESYSTEM does not exist. Exiting."
+! command -v mkfs.$FILESYSTEM &> /dev/null && err "Filesystem type does not exist. Exiting."
 
 echo -n "Timezone [America/Los_Angeles]: "
 read TIMEZONE
