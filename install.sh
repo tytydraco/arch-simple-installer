@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Written by Draco (tytydraco @ GitHub)
 
+# Exit on any error
+set -e
+
 err() {
 	echo -e "\e[91m[!] $@\e[39m"
 	exit 1
@@ -51,8 +54,8 @@ read PROCEED
 [[ "$PROCEED" != "y" ]] && err "User chose not to proceed. Exiting."
 
 # Unmount for safety
-umount "$EFI" 2> /dev/null
-umount "$ROOT" 2> /dev/null
+umount "$EFI" 2> /dev/null || true
+umount "$ROOT" 2> /dev/null || true
 
 # Timezone
 timedatectl set-ntp true
@@ -70,6 +73,7 @@ timedatectl set-ntp true
 	echo
 	echo
 	echo
+	sleep 3		# Delay to avoid race condition
 	echo w		# Write
 ) | fdisk -w always "$DISKPATH"
 
