@@ -20,6 +20,13 @@ echo -n "Bootloader [efi/bios]: "
 read BOOTLOADER
 [[ "$BOOTLOADER" != "efi" && "$BOOTLOADER" != "bios" ]] && err "Invalid bootloader mode. Exiting."
 
+[[ "$BOOTLOADER" == "efi" ]] && _GRUB_TARGET="x86_64-efi"
+[[ "$BOOTLOADER" == "bios" ]] && _GRUB_TARGET="i386-pc"
+
+echo -n "GRUBv2 Target [$_GRUB_TARGET]: "
+read GRUB_TARGET
+FILESYSTEM=${GRUB_TARGET:-"$_GRUB_TARGET"}
+
 echo -n "Filesystem [ext4]: "
 read FILESYSTEM
 FILESYSTEM=${FILESYSTEM:-ext4}
