@@ -3,10 +3,11 @@ An extremely basic Arch Linux installer, configuring Arch, GRUB, NetworkManager,
 
 # Features
 - Consistently reproducible
-- 512 MB EFI, everything else is rootfs
-- Timezone, RTC, hosts, hostname setup
+- Supports UEFI and BIOS installs
+- Supports custom GRUBv2 targets
+- Follows the Arch Wiki verbatim
 - AMD and Intel microcode install
-- GRUBv2 UEFI install
+- GRUBv2 install
 - NetworkManager + IWD install
 - Bare minimum universal installation
 
