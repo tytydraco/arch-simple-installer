@@ -15,6 +15,9 @@ An extremely basic Arch Linux installer, configuring Arch, GRUB, NetworkManager,
 - [aui](https://github.com/helmuthdu/aui): Manual partitioning, over complicated, requires `unzip` package.
 - arch-simple-installer: Automatic partitioning, only 5 manual configs, bare minimum install.
 
+# Demonstration
+https://youtu.be/MxbsB1W98Rw
+
 # Usage
 1. Boot Arch Linux live image
 2. Connect to the internet
