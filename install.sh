@@ -16,9 +16,9 @@ read DISKPATH
 DISKPATH=${DISKPATH:-/dev/sda}
 [[ ! -b "$DISKPATH" ]] && err "Disk does not exist. Exiting."
 
-echo -n "Bootloader [efi/bios]: "
-read BOOTLOADER
-[[ "$BOOTLOADER" != "efi" && "$BOOTLOADER" != "bios" ]] && err "Invalid bootloader mode. Exiting."
+# Check if this is an EFI system and plan accordingly
+BOOTLOADER="bios"
+[[ -d "/sys/firmware/efi" ]] && BOOTLOADER="efi"
 
 [[ "$BOOTLOADER" == "efi" ]] && _GRUB_TARGET="x86_64-efi"
 [[ "$BOOTLOADER" == "bios" ]] && _GRUB_TARGET="i386-pc"
