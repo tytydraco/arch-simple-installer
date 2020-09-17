@@ -20,13 +20,6 @@ DISKPATH=${DISKPATH:-/dev/sda}
 BOOTLOADER="bios"
 [[ -d "/sys/firmware/efi" ]] && BOOTLOADER="efi"
 
-[[ "$BOOTLOADER" == "efi" ]] && _GRUB_TARGET="x86_64-efi"
-[[ "$BOOTLOADER" == "bios" ]] && _GRUB_TARGET="i386-pc"
-
-echo -n "GRUBv2 Target [$_GRUB_TARGET]: "
-read GRUB_TARGET
-GRUB_TARGET=${GRUB_TARGET:-"$_GRUB_TARGET"}
-
 echo -n "Filesystem [ext4]: "
 read FILESYSTEM
 FILESYSTEM=${FILESYSTEM:-ext4}
@@ -54,7 +47,6 @@ echo ""
 printf "%-16s\t%-16s\n" "CONFIGURATION" "VALUE"
 printf "%-16s\t%-16s\n" "Disk:" "$DISKPATH"
 printf "%-16s\t%-16s\n" "Bootloader:" "$BOOTLOADER"
-printf "%-16s\t%-16s\n" "GRUBv2 Target:" "$GRUB_TARGET"
 printf "%-16s\t%-16s\n" "Root Filesystem:" "$FILESYSTEM"
 printf "%-16s\t%-16s\n" "Boot Partition:" "$BOOT"
 printf "%-16s\t%-16s\n" "Root Partition:" "$ROOT"
@@ -145,11 +137,11 @@ genfstab -U /mnt >> /mnt/etc/fstab
 		echo "pacman -Sy --noconfirm grub efibootmgr"
 		echo "mkdir /boot/efi"
 		echo "mount \"$BOOT\" /boot/efi"
-		echo "grub-install --target=\"$GRUB_TARGET\" --efi-directory=/boot/efi --bootloader-id=GRUB --removable"
+		echo "grub-install --efi-directory=/boot/efi --bootloader-id=GRUB --removable"
 		echo "grub-mkconfig -o /boot/grub/grub.cfg"
 	else
 		echo "pacman -Sy --noconfirm grub"
-		echo "grub-install --target=\"$GRUB_TARGET\" --removable \"$DISKPATH\""
+		echo "grub-install --removable \"$DISKPATH\""
 		echo "grub-mkconfig -o /boot/grub/grub.cfg"
 	fi
 
