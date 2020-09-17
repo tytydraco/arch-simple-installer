@@ -5,13 +5,17 @@
 set -e
 
 err() {
-	echo -e "\e[91m[!] $@\e[39m"
+	echo -e " \e[91m*\e[39m $@"
 	exit 1
+}
+
+prompt() {
+	echo -ne " \e[92m*\e[39m $@"
 }
 
 # Configuration
 lsblk
-echo -n "Disk [/dev/sda]: "
+prompt "Disk [/dev/sda]: "
 read DISKPATH
 DISKPATH=${DISKPATH:-/dev/sda}
 [[ ! -b "$DISKPATH" ]] && err "Disk does not exist. Exiting."
@@ -20,21 +24,21 @@ DISKPATH=${DISKPATH:-/dev/sda}
 BOOTLOADER="bios"
 [[ -d "/sys/firmware/efi" ]] && BOOTLOADER="efi"
 
-echo -n "Filesystem [ext4]: "
+prompt "Filesystem [ext4]: "
 read FILESYSTEM
 FILESYSTEM=${FILESYSTEM:-ext4}
 ! command -v mkfs.$FILESYSTEM &> /dev/null && err "Filesystem type does not exist. Exiting."
 
-echo -n "Timezone [America/Los_Angeles]: "
+prompt "Timezone [America/Los_Angeles]: "
 read TIMEZONE
 TIMEZONE=${TIMEZONE:-America/Los_Angeles}
 [[ ! -f "/usr/share/zoneinfo/$TIMEZONE" ]] && err "/usr/share/zoneinfo/$TIMEZONE does not exist. Exiting."
 
-echo -n "Hostname [localhost]: "
+prompt "Hostname [localhost]: "
 read HOSTNAME
 HOSTNAME=${HOSTNAME:-localhost}
 
-echo -n "Password [root]: "
+prompt "Password [root]: "
 read -s PASSWORD
 PASSWORD=${PASSWORD:-root}
 
@@ -54,7 +58,7 @@ printf "%-16s\t%-16s\n" "Timezone:" "$TIMEZONE"
 printf "%-16s\t%-16s\n" "Hostname:" "$HOSTNAME"
 printf "%-16s\t%-16s\n" "Password:" "`echo \"$PASSWORD\" | sed 's/./*/g'`"
 echo ""
-echo -n "Proceed? [y/n]: "
+prompt "Proceed? [y/n]: "
 read PROCEED
 [[ "$PROCEED" != "y" ]] && err "User chose not to proceed. Exiting."
 
@@ -64,8 +68,6 @@ umount "$ROOT" 2> /dev/null || true
 
 # Timezone
 timedatectl set-ntp true
-
-# Wipe disk signatures first
 
 # Partitioning
 (
