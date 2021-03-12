@@ -43,7 +43,7 @@ read -s PASSWORD
 PASSWORD=${PASSWORD:-root}
 
 prompt "SSH [yes/no]: "
-read -s SSH
+read SSH
 SSH=${SSH:-no}
 
 # Setup partition variables
