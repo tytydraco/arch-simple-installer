@@ -159,6 +159,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	# Enable SSH server out of the box
 	if [[ "$SSH" == "yes" ]]
 	then
+                echo "pacman -Sy --noconfirm openssh"
 		echo "sed -i \"s/#PermitRootLogin prohibit-password/PermitRootLogin yes/\" /etc/ssh/sshd_config"
 		echo "systemctl enable sshd"
 	fi
