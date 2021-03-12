@@ -42,6 +42,10 @@ prompt "Password [root]: "
 read -s PASSWORD
 PASSWORD=${PASSWORD:-root}
 
+prompt "SSH [yes/no]: "
+read -s SSH
+SSH=${SSH:-no}
+
 # Setup partition variables
 BOOT="${DISKPATH}1"
 ROOT="${DISKPATH}2"
@@ -57,6 +61,7 @@ printf "%-16s\t%-16s\n" "Root Partition:" "$ROOT"
 printf "%-16s\t%-16s\n" "Timezone:" "$TIMEZONE"
 printf "%-16s\t%-16s\n" "Hostname:" "$HOSTNAME"
 printf "%-16s\t%-16s\n" "Password:" "`echo \"$PASSWORD\" | sed 's/./*/g'`"
+printf "%-16s\t%-16s\n" "SSH:" "$SSH"
 echo ""
 prompt "Proceed? [y/n]: "
 read PROCEED
@@ -150,6 +155,13 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	# Install and enable NetworkManager on boot
 	echo "pacman -Sy --noconfirm networkmanager iwd"
 	echo "systemctl enable NetworkManager"
+
+	# Enable SSH server out of the box
+	if [[ "$SSH" == "yes" ]]
+	then
+		echo "sed -i \"s/#PermitRootLogin prohibit-password/PermitRootLogin yes/\" /etc/ssh/sshd_config"
+		echo "systemctl enable sshd"
+	fi
 ) | arch-chroot /mnt
 
 echo "Install completed on $DISKPATH." 
