@@ -41,6 +41,8 @@ HOSTNAME=${HOSTNAME:-localhost}
 prompt "Password [root]: "
 read -s PASSWORD
 PASSWORD=${PASSWORD:-root}
+# Newline here since read -s does not put a newline
+echo
 
 prompt "SSH [yes/no]: "
 read SSH
