@@ -20,10 +20,6 @@ read DISKPATH
 DISKPATH=${DISKPATH:-/dev/sda}
 [[ ! -b "$DISKPATH" ]] && err "Disk does not exist. Exiting."
 
-# Check if this is an EFI system and plan accordingly
-BOOTLOADER="bios"
-[[ -d "/sys/firmware/efi" ]] && BOOTLOADER="efi"
-
 prompt "Filesystem [ext4]: "
 read FILESYSTEM
 FILESYSTEM=${FILESYSTEM:-ext4}
@@ -38,27 +34,26 @@ prompt "Hostname [localhost]: "
 read HOSTNAME
 HOSTNAME=${HOSTNAME:-localhost}
 
-prompt "Password [root]: "
-read -s PASSWORD
-PASSWORD=${PASSWORD:-root}
-# Newline here since read -s does not put a newline
-echo
-
 prompt "SSH [yes/no]: "
 read SSH
 SSH=${SSH:-no}
 
+prompt "Password [root]: "
+read -s PASSWORD
+PASSWORD=${PASSWORD:-root}
+
 # Setup partition variables
-BOOT="${DISKPATH}1"
-ROOT="${DISKPATH}2"
+BOOT_BIOS="${DISKPATH}1"
+BOOT_EFI="${DISKPATH}2"
+ROOT="${DISKPATH}3"
 
 echo ""
 echo ""
 printf "%-16s\t%-16s\n" "CONFIGURATION" "VALUE"
 printf "%-16s\t%-16s\n" "Disk:" "$DISKPATH"
-printf "%-16s\t%-16s\n" "Bootloader:" "$BOOTLOADER"
 printf "%-16s\t%-16s\n" "Root Filesystem:" "$FILESYSTEM"
-printf "%-16s\t%-16s\n" "Boot Partition:" "$BOOT"
+printf "%-16s\t%-16s\n" "Boot Partition [BIOS]:" "$BOOT_BIOS"
+printf "%-16s\t%-16s\n" "Boot Partition [EFI]:" "$BOOT_EFI"
 printf "%-16s\t%-16s\n" "Root Partition:" "$ROOT"
 printf "%-16s\t%-16s\n" "Timezone:" "$TIMEZONE"
 printf "%-16s\t%-16s\n" "Hostname:" "$HOSTNAME"
@@ -70,7 +65,8 @@ read PROCEED
 [[ "$PROCEED" != "y" ]] && err "User chose not to proceed. Exiting."
 
 # Unmount for safety
-[[ "$BOOTLOADER" == "efi" ]] && umount "$BOOT" 2> /dev/null || true
+umount "$BOOT_BIOS" 2> /dev/null || true
+umount "$BOOT_EFI" 2> /dev/null || true
 umount "$ROOT" 2> /dev/null || true
 
 # Timezone
@@ -80,23 +76,19 @@ timedatectl set-ntp true
 (
 	echo g		# Erase as GPT
 
-	# EFI or BIOS partitions
-	if [[ "$BOOTLOADER" == "efi" ]]
-	then
-		echo n
-		echo
-		echo
-		echo +512M
-		echo t
-		echo 1
-	else
-		echo n
-		echo
-		echo
-		echo +1M
-		echo t
-		echo 4
-	fi
+	echo n		# BIOS partition
+	echo
+	echo
+	echo +512M
+	echo t
+	echo 1
+	
+	echo n		# EFI partition
+	echo
+	echo
+	echo +1M
+	echo t
+	echo 4
 
 	echo n		# Linux root
 	echo
@@ -107,7 +99,7 @@ timedatectl set-ntp true
 ) | fdisk -w always -W always "$DISKPATH"
 
 # Formatting partitions
-[[ "$BOOTLOADER" == "efi" ]] && mkfs.fat -F 32 "$BOOT"
+mkfs.fat -F 32 "$BOOT_EFI"
 yes | mkfs.$FILESYSTEM "$ROOT"
 
 # Mount our new partition
@@ -141,18 +133,18 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	echo "pacman -Sy --noconfirm amd-ucode intel-ucode"
 
 	# Install GRUBv2 as a removable drive (universal across hw)
-	if [[ "$BOOTLOADER" == "efi" ]]
-	then
-		echo "pacman -Sy --noconfirm grub efibootmgr"
-		echo "mkdir /boot/efi"
-		echo "mount \"$BOOT\" /boot/efi"
-		echo "grub-install --efi-directory=/boot/efi --bootloader-id=GRUB --removable"
-		echo "grub-mkconfig -o /boot/grub/grub.cfg"
-	else
-		echo "pacman -Sy --noconfirm grub"
-		echo "grub-install --removable \"$DISKPATH\""
-		echo "grub-mkconfig -o /boot/grub/grub.cfg"
-	fi
+	echo "pacman -Sy --noconfirm grub efibootmgr"
+
+	# BIOS steps
+	echo "grub-install --target=i386-pc \"$DISKPATH\" --recheck"
+
+	# EFI steps
+	echo "mkdir /boot/efi"
+	echo "mount \"$BOOT_EFI\" /boot/efi"
+	echo "grub-install --target=x86_64-efi --efi-directory=/boot/efi --removable --recheck"
+	
+	# Install GRUB config
+	echo "grub-mkconfig -o /boot/grub/grub.cfg"
 
 	# Install and enable NetworkManager on boot
 	echo "pacman -Sy --noconfirm networkmanager iwd"
