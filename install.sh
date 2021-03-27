@@ -60,7 +60,7 @@ printf "%-16s\t%-16s\n" "Hostname:" "$HOSTNAME"
 printf "%-16s\t%-16s\n" "Password:" "`echo \"$PASSWORD\" | sed 's/./*/g'`"
 printf "%-16s\t%-16s\n" "SSH:" "$SSH"
 echo ""
-prompt "Proceed? [y/n]: "
+prompt "Proceed? [y/N]: "
 read PROCEED
 [[ "$PROCEED" != "y" ]] && err "User chose not to proceed. Exiting."
 
