@@ -79,16 +79,17 @@ timedatectl set-ntp true
 	echo n		# BIOS partition
 	echo
 	echo
-	echo +512M
-	echo t
-	echo 1
-	
-	echo n		# EFI partition
-	echo
-	echo
 	echo +1M
 	echo t
 	echo 4
+
+	echo n		# EFI partition
+	echo
+	echo
+	echo +512M
+	echo t
+	echo
+	echo 1
 
 	echo n		# Linux root
 	echo
