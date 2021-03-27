@@ -34,7 +34,7 @@ prompt "Hostname [localhost]: "
 read HOSTNAME
 HOSTNAME=${HOSTNAME:-localhost}
 
-prompt "SSH [yes]: "
+prompt "SSH [no]: "
 read SSH
 SSH=${SSH:-no}
 
