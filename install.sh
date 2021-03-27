@@ -151,6 +151,10 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	echo "pacman -Sy --noconfirm networkmanager iwd"
 	echo "systemctl enable NetworkManager"
 
+	# Fix initramfs for portable media
+	echo "sed -i \"s/autodetect modconf block filesystems keyboard/block keyboard autodetect modconf filesystems/\" /etc/mkinitcpio.conf"
+	echo "mkinitcpio -P"
+
 	# Enable SSH server out of the box
 	if [[ "$SSH" == "yes" ]]
 	then
