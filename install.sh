@@ -150,6 +150,9 @@ genfstab -U /mnt >> /mnt/etc/fstab
 	# Install and enable NetworkManager on boot
 	echo "pacman -Sy --noconfirm networkmanager iwd"
 	echo "systemctl enable NetworkManager"
+	
+	# Launch bluetoothd on boot
+	echo "systemctl enable bluetooth"
 
 	# Fix initramfs for portable media
 	echo "sed -i \"s/autodetect modconf block filesystems keyboard/block keyboard autodetect modconf filesystems/\" /etc/mkinitcpio.conf"
